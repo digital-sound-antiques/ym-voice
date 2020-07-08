@@ -1,4 +1,6 @@
 # YMVoice
+[![npm version](https://badge.fury.io/js/ym-voice.svg)](https://badge.fury.io/js/ym-voice)
+
 FM voice parameter decoder/encoder library for YAMAHA's legacy sound chips.
 
 # Supported Chips
