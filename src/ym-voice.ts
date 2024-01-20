@@ -6,5 +6,6 @@ export abstract class YMVoice {
     return this.encode().map(e => ("0" + e.toString(16)).slice(-2)).join("");
   }
   abstract toMML(type?: string | null): string;
+  abstract toFile(type?: string | null, parameters?: {[key: string]: any}): string | Uint8Array;
 }
 

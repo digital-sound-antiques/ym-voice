@@ -253,4 +253,7 @@ export class OPLVoice extends YMVoice {
 `;
   }
 
+  toFile(): string | Uint8Array {
+    return "";
+  }
 }

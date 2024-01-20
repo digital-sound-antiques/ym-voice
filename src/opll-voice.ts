@@ -254,6 +254,10 @@ export class OPLLVoice extends YMVoice {
   ${[s[1].ar, s[1].dr, s[1].sl, s[1].rr, s[1].kl, s[1].ml, s[1].am, s[1].pm, s[1].eg, s[1].kr, s[1].ws].map(pad2).join(',')} }
 `;
   }
+
+  toFile(): string | Uint8Array {
+    return "";
+  }
 }
 
 export const OPLLVoiceMap = _OPLL_ROM_PATCHES.map((e) => OPLLVoice.decode(e));
