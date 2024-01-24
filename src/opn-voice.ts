@@ -2,6 +2,7 @@ import { OPMSlotParam, OPMVoice } from "./opm-voice";
 import { OPLSlotParam, OPLVoice } from "./opl-voice";
 import { YMVoice } from "./ym-voice";
 
+const pad3 = (e: any) => ("   " + e).slice(-3);
 export class OPNSlotParam {
   __type: "OPNSlotParam" = "OPNSlotParam";
   dt: number;
@@ -373,7 +374,6 @@ ${data.slice(20, 24).map(pad0x3).join(',')} ; SL/RR
 ${data.slice(24).map(pad0x3).join(',')}                ; FB/AL
     `
     } if (type === "mucom88") {
-      const pad3 = (e: any) => ("   " + e).slice(-3);
       return `; OPN voice for MUCOM88
   @0
 ${[this.fb, this.con].map(pad3).join(',')}
@@ -393,6 +393,36 @@ ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].
   ${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt, s[2].am].map(pad03).join(' ')}
   ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt, s[3].am].map(pad03).join(' ')}
 `;
+    }
+  }
+
+  toFile(type: "dmp" | "tfi" | "vgi" = "tfi"): string | Uint8Array {
+    const s = this.slots;
+    const convertDetune = (detune: number) => detune > 3 ? 7 - detune : detune;
+    if (type === "dmp") {
+      return new Uint8Array([
+        ...[0x0a, 1, this.pms, this.fb, this.con, this.ams],
+        ...[s[0].ml, s[0].tl, s[0].ar, s[0].dr, s[0].sl, s[0].rr, s[0].am, s[0].ks, s[0].dt, s[0].sr, 0],
+        ...[s[1].ml, s[1].tl, s[1].ar, s[1].dr, s[1].sl, s[1].rr, s[1].am, s[1].ks, s[1].dt, s[1].sr, 0],
+        ...[s[2].ml, s[2].tl, s[2].ar, s[2].dr, s[2].sl, s[2].rr, s[2].am, s[2].ks, s[2].dt, s[2].sr, 0],
+        ...[s[3].ml, s[3].tl, s[3].ar, s[3].dr, s[3].sl, s[3].rr, s[3].am, s[3].ks, s[3].dt, s[3].sr, 0],
+      ]);
+    } else if (type === "vgi") {
+      return new Uint8Array([
+        ...[this.con, this.fb, this.pms | this.ams << 4],
+        ...[s[0].ml, convertDetune(s[0].dt), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
+        ...[s[1].ml, convertDetune(s[1].dt), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
+        ...[s[2].ml, convertDetune(s[2].dt), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],
+        ...[s[3].ml, convertDetune(s[3].dt), s[3].tl, s[3].ks, s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, 0],
+      ]);
+    } else {
+      return new Uint8Array([
+        ...[this.con, this.fb],
+        ...[s[0].ml, convertDetune(s[0].dt), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
+        ...[s[1].ml, convertDetune(s[1].dt), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
+        ...[s[2].ml, convertDetune(s[2].dt), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],
+        ...[s[3].ml, convertDetune(s[3].dt), s[3].tl, s[3].ks, s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, 0],
+      ]);
     }
   }
 }

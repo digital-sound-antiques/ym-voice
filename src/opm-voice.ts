@@ -1,6 +1,8 @@
 import { OPNVoice, OPNSlotParam } from "./opn-voice";
 import { YMVoice } from "./ym-voice";
 
+const pad3 = (e: any) => ("   " + e).slice(-3);
+
 export class OPMSlotParam {
   __type: "OPMSlotParam" = "OPMSlotParam";
   dt1: number;
@@ -189,7 +191,6 @@ export class OPMVoice extends YMVoice {
   toMML(type: "mxdrv" | "pmd" = "pmd"): string {
     const s = this.slots;
     if (type === "mxdrv") {
-      const pad3 = (e: any) => ("   " + e).slice(-3);
       return `; OPM voice for MXDRV
 @v0 = {
 ;  AR  DR  SR  RR  SL  OL  KS  ML DT1 DT2 AME
@@ -215,4 +216,48 @@ export class OPMVoice extends YMVoice {
     }
   }
 
+  toFile(type: "opm" | "dmp" | "vgi" | "tfi" = "opm", parameters?: {[key: string]: any}): string | Uint8Array {
+    const s = this.slots;
+    // for VGI and TFI, detune ranges from 0..6 where 0 = -3, 6 = +3. for all
+    // other formats, detune goes from 0..7, where 0..3 is 0..3 and 4..7 is 0..-3
+    const convertDetune = (detune: number) => detune > 3 ? 7 - detune : detune;
+    if (type === "dmp") {
+      return new Uint8Array([
+        ...[0x0a, 1, this.pms, this.fb, this.con, this.ams],
+        ...[s[0].ml, s[0].tl, s[0].ar, s[0].dr, s[0].sl, s[0].rr, s[0].am, s[0].ks, s[0].dt2 << 4 | s[0].dt1, s[0].sr, 0],
+        ...[s[1].ml, s[1].tl, s[1].ar, s[1].dr, s[1].sl, s[1].rr, s[1].am, s[1].ks, s[1].dt2 << 4 | s[1].dt1, s[1].sr, 0],
+        ...[s[2].ml, s[2].tl, s[2].ar, s[2].dr, s[2].sl, s[2].rr, s[2].am, s[2].ks, s[2].dt2 << 4 | s[2].dt1, s[2].sr, 0],
+        ...[s[3].ml, s[3].tl, s[3].ar, s[3].dr, s[3].sl, s[3].rr, s[3].am, s[3].ks, s[3].dt2 << 4 | s[3].dt1, s[3].sr, 0],
+      ]);
+    } else if (type === "vgi") {
+      return new Uint8Array([
+        ...[this.con, this.fb, this.pms | this.ams << 4],
+        ...[s[0].ml, convertDetune(s[0].dt1), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
+        ...[s[1].ml, convertDetune(s[1].dt1), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
+        ...[s[2].ml, convertDetune(s[2].dt1), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],
+        ...[s[3].ml, convertDetune(s[3].dt1), s[3].tl, s[3].ks, s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, 0],
+      ]);
+    } else if (type === "tfi") {
+      const convertDetune = (detune: number) => detune > 3 ? 7 - detune : detune;
+      return new Uint8Array([
+        ...[this.con, this.fb],
+        ...[s[0].ml, convertDetune(s[0].dt1), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
+        ...[s[1].ml, convertDetune(s[1].dt1), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
+        ...[s[2].ml, convertDetune(s[2].dt1), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],
+        ...[s[3].ml, convertDetune(s[3].dt1), s[3].tl, s[3].ks, s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, 0],
+      ]);
+    } else {
+      return `@:${parameters?.number} ${parameters?.name}
+//  LFRQ AMD PMD  WF NFRQ
+LFO: ${[0, 0, 0, 0, 0].map(pad3).join(' ')}
+//  PAN  FL CON AMS PMS SLOT  NE
+CH: ${[64, this.fb, this.con, 0, 0, 15, 0].map(pad3).join(' ')}
+//   AR D1R D2R  RR D1L  TL  KS MUL DT1 DT2 AMS-EN
+M1: ${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt1, s[0].dt2, s[0].am].map(pad3).join(' ')}
+C1: ${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt1, s[1].dt2, s[1].am].map(pad3).join(' ')}
+M2: ${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt1, s[2].dt2, s[2].am].map(pad3).join(' ')}
+C2: ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt1, s[3].dt2, s[3].am].map(pad3).join(' ')}
+`;
+    }
+  }
 }
