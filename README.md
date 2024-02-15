@@ -44,6 +44,7 @@ const opn = OPNVoice.decode(
     0x0F, 0x0F, 0x3F, 0x3F, // SL/RR
     0x00, 0x00, 0x00, 0x00, // SSG-EG
     0x34,                   // FB/AL
+    0x00,                   // AMS/PMS
   ]);
 console.log(opn);
 ```
@@ -206,34 +207,34 @@ A: |-----------|   FB   |CN|
 ## OPN(YM2203)/OPN2(YM2612)/OPNA(YM2608)
 ```
     |D7|D6|D5|D4|D3|D2|D1|D0|
-00: |--|   DT   |     ML    | # slot1 
-01: |--|   DT   |     ML    | # slot3 
-02: |--|   DT   |     ML    | # slot2 
-03: |--|   DT   |     ML    | # slot4 
-04: |--|         TL         | # slot1 
-05: |--|         TL         | # slot3 
-06: |--|         TL         | # slot2 
-07: |--|         TL         | # slot4 
-08: |--------|      AR      | # slot1 
-09: |--------|      AR      | # slot3 
-0A: |--------|      AR      | # slot2 
-0B: |--------|      AR      | # slot4 
-0C: |AM|-----|      DR      | # slot1
-0D: |AM|-----|      DR      | # slot3 
-0E: |AM|-----|      DR      | # slot2 
-0F: |AM|-----|      DR      | # slot4
-10: |--------|      SR      | # slot1
-11: |--------|      SR      | # slot3 
-12: |--------|      SR      | # slot2
-13: |--------|      SR      | # slot4
-14: |     SL    |    RR     | # slot1
-15: |     SL    |    RR     | # slot3
-16: |     SL    |    RR     | # slot2
-17: |     SL    |    RR     | # slot4
-18: |-----------|   SSG-EG  | # slot1
-19: |-----------|   SSG-EG  | # slot3
-1A: |-----------|   SSG-EG  | # slot2
-1B: |-----------|   SSG-EG  | # slot4
+00: |--|   DT   |     ML    | # slot1 (M1) 
+01: |--|   DT   |     ML    | # slot3 (M2) 
+02: |--|   DT   |     ML    | # slot2 (C1) 
+03: |--|   DT   |     ML    | # slot4 (C2) 
+04: |--|         TL         | # slot1 (M1)
+05: |--|         TL         | # slot3 (M2)
+06: |--|         TL         | # slot2 (C1)
+07: |--|         TL         | # slot4 (C2)
+08: |--------|      AR      | # slot1 (M1) 
+09: |--------|      AR      | # slot3 (M2) 
+0A: |--------|      AR      | # slot2 (C1) 
+0B: |--------|      AR      | # slot4 (C2) 
+0C: |AM|-----|      DR      | # slot1 (M1)
+0D: |AM|-----|      DR      | # slot3 (M2) 
+0E: |AM|-----|      DR      | # slot2 (C1) 
+0F: |AM|-----|      DR      | # slot4 (C2)
+10: |--------|      SR      | # slot1 (M1)
+11: |--------|      SR      | # slot3 (M2) 
+12: |--------|      SR      | # slot2 (C1)
+13: |--------|      SR      | # slot4 (C2)
+14: |     SL    |    RR     | # slot1 (M1)
+15: |     SL    |    RR     | # slot3 (M2)
+16: |     SL    |    RR     | # slot2 (C1)
+17: |     SL    |    RR     | # slot4 (C2)
+18: |-----------|   SSG-EG  | # slot1 (M1)
+19: |-----------|   SSG-EG  | # slot3 (M2)
+1A: |-----------|   SSG-EG  | # slot2 (C1)
+1B: |-----------|   SSG-EG  | # slot4 (C2)
 1C: |-----|   FB   |  CON   | 
 1D: |--|--| AMS |--|  PMS   | 
     |D7|D6|D5|D4|D3|D2|D1|D0|
@@ -242,30 +243,30 @@ A: |-----------|   FB   |CN|
 ## OPM(YM2151)
 ```
     |D7|D6|D5|D4|D3|D2|D1|D0|
-00: |--|  DT1   |     ML    | # slot1 
-01: |--|  DT1   |     ML    | # slot3 
-02: |--|  DT1   |     ML    | # slot2 
-03: |--|  DT1   |     ML    | # slot4 
-04: |--|         TL         | # slot1 
-05: |--|         TL         | # slot3 
-06: |--|         TL         | # slot2 
-07: |--|         TL         | # slot4 
-08: |--------|      AR      | # slot1 
-09: |--------|      AR      | # slot3 
-0A: |--------|      AR      | # slot2 
-0B: |--------|      AR      | # slot4 
-0C: |AM|-----|      DR      | # slot1
-0D: |AM|-----|      DR      | # slot3 
-0E: |AM|-----|      DR      | # slot2 
-0F: |AM|-----|      DR      | # slot4
-10: | DT2 |--|      SR      | # slot1
-11: | DT2 |--|      SR      | # slot3 
-12: | DT2 |--|      SR      | # slot2
-13: | DT2 |--|      SR      | # slot4
-14: |     SL    |    RR     | # slot1
-15: |     SL    |    RR     | # slot3
-16: |     SL    |    RR     | # slot2
-17: |     SL    |    RR     | # slot4
+00: |--|  DT1   |     ML    | # slot1 (M1) 
+01: |--|  DT1   |     ML    | # slot3 (M2) 
+02: |--|  DT1   |     ML    | # slot2 (C1) 
+03: |--|  DT1   |     ML    | # slot4 (C2) 
+04: |--|         TL         | # slot1 (M1)
+05: |--|         TL         | # slot3 (M2)
+06: |--|         TL         | # slot2 (C1)
+07: |--|         TL         | # slot4 (C2)
+08: |--------|      AR      | # slot1 (M1) 
+09: |--------|      AR      | # slot3 (M2) 
+0A: |--------|      AR      | # slot2 (C1) 
+0B: |--------|      AR      | # slot4 (C2) 
+0C: |AM|-----|      DR      | # slot1 (M1)
+0D: |AM|-----|      DR      | # slot3 (M2) 
+0E: |AM|-----|      DR      | # slot2 (C1) 
+0F: |AM|-----|      DR      | # slot4 (C2)
+10: | DT2 |--|      SR      | # slot1 (M1)
+11: | DT2 |--|      SR      | # slot3 (M2) 
+12: | DT2 |--|      SR      | # slot2 (C1)
+13: | DT2 |--|      SR      | # slot4 (C2)
+14: |     SL    |    RR     | # slot1 (M1)
+15: |     SL    |    RR     | # slot3 (M2)
+16: |     SL    |    RR     | # slot2 (C1)
+17: |     SL    |    RR     | # slot4 (C2)
 18: |-----|   FB   |  CON   | 
 19: |-----|  PMS   |--| AMS |
     |D7|D6|D5|D4|D3|D2|D1|D0|

@@ -22,7 +22,7 @@ const _OPLL_ROM_PATCHES = [
   [0x41, 0x41, 0x89, 0x03, 0xf1, 0xe4, 0xc0, 0x13], // F: Electric Guitar
   [0x01, 0x01, 0x18, 0x0f, 0xdf, 0xf8, 0x6a, 0x6d], // R: Bass Drum
   [0x01, 0x01, 0x00, 0x00, 0xc8, 0xd8, 0xa7, 0x68], // R: High-Hat(M) / Snare Drum(C)
-  [0x05, 0x01, 0x00, 0x00, 0xf8, 0xaa, 0x59, 0x55] // R: Tom-tom(M) / Top Cymbal(C)
+  [0x05, 0x01, 0x00, 0x00, 0xf8, 0xaa, 0x59, 0x55], // R: Tom-tom(M) / Top Cymbal(C)
 ];
 
 const _VRC7_ROM_PATCHES = [
@@ -44,11 +44,11 @@ const _VRC7_ROM_PATCHES = [
   [0x21, 0x72, 0x0d, 0x00, 0xc1, 0xd5, 0x56, 0x06],
   [0x01, 0x01, 0x18, 0x0f, 0xdf, 0xf8, 0x6a, 0x6d],
   [0x01, 0x01, 0x00, 0x00, 0xc8, 0xd8, 0xa7, 0x68],
-  [0x05, 0x01, 0x00, 0x00, 0xf8, 0xaa, 0x59, 0x55]
+  [0x05, 0x01, 0x00, 0x00, 0xf8, 0xaa, 0x59, 0x55],
 ];
 
 export class OPLLSlotParam {
-  __type: "OPLLSlotParam" = "OPLLSlotParam";
+  __type = "OPLLSlotParam" as const;
   am: number;
   pm: number;
   eg: number;
@@ -74,7 +74,7 @@ export class OPLLSlotParam {
     this.sl = init?.sl ?? 0;
     this.rr = init?.rr ?? 0;
     this.ws = init?.ws ?? 0;
-  };
+  }
 
   toOPL(): OPLSlotParam {
     const _klfix = [0, 2, 1, 3];
@@ -116,7 +116,7 @@ export class OPLLSlotParam {
       sr: _RR(this.eg ? 0 : this.rr),
       sl: this.sl,
       rr: this.eg ? Math.min(15, this.rr + 1) : car ? 8 : 0,
-      ssg: 0
+      ssg: 0,
     });
   }
 }
@@ -133,24 +133,21 @@ export class OPLLVoice extends YMVoice {
   constructor(init?: OPLLVoiceObject) {
     super("OPLLVoice");
     this.fb = init?.fb ?? 0;
-    this.slots = [
-      new OPLLSlotParam(init?.slots?.[0]),
-      new OPLLSlotParam(init?.slots?.[1]),
-    ];
+    this.slots = [new OPLLSlotParam(init?.slots?.[0]), new OPLLSlotParam(init?.slots?.[1])];
   }
 
   /**
    *    |D7|D6|D5|D4|D3|D2|D1|D0|
-   * 0: |AM|PM|EG|KR|    ML     | # slot1 
+   * 0: |AM|PM|EG|KR|    ML     | # slot1
    * 1: |AM|PM|EG|KR|    ML     | # slot2
    * 2: |  KL |        TL       | # slot1
-   * 3: |  KL |--|WC|WM|   FB   | # slot2 
-   * 4: |     AR    |    DR     | # slot1 
+   * 3: |  KL |--|WC|WM|   FB   | # slot2
+   * 4: |     AR    |    DR     | # slot1
    * 5: |     AR    |    DR     | # slot2
    * 6: |     SL    |    RR     | # slot1
    * 7: |     SL    |    RR     | # slot2
    *    |D7|D6|D5|D4|D3|D2|D1|D0|
-   * 
+   *
    * WC/WM is waveform for slot#2 and slot#1, respectively.
    */
   encode(): Array<number> {
@@ -159,7 +156,7 @@ export class OPLLVoice extends YMVoice {
       (s[0].am << 7) | (s[0].pm << 6) | (s[0].eg << 5) | (s[0].kr << 4) | s[0].ml,
       (s[1].am << 7) | (s[1].pm << 6) | (s[1].eg << 5) | (s[1].kr << 4) | s[1].ml,
       (s[0].kl << 6) | s[0].tl,
-      (s[1].kl << 6) | s[1].ws << 4 | s[1].ws << 3 | this.fb,
+      (s[1].kl << 6) | (s[1].ws << 4) | (s[0].ws << 3) | this.fb,
       (s[0].ar << 4) | s[0].dr,
       (s[1].ar << 4) | s[1].dr,
       (s[0].sl << 4) | s[0].rr,
@@ -183,7 +180,7 @@ export class OPLLVoice extends YMVoice {
           dr: d[4] & 0xf,
           sl: (d[6] >> 4) & 0xf,
           rr: d[6] & 0xf,
-          ws: (d[3] >> 3) & 1
+          ws: (d[3] >> 3) & 1,
         }),
         new OPLLSlotParam({
           am: (d[1] >> 7) & 1,
@@ -197,9 +194,9 @@ export class OPLLVoice extends YMVoice {
           dr: d[5] & 0xf,
           sl: (d[7] >> 4) & 0xf,
           rr: d[7] & 0xf,
-          ws: (d[3] >> 4) & 1
+          ws: (d[3] >> 4) & 1,
         }),
-      ]
+      ],
     });
   }
 
@@ -218,12 +215,7 @@ export class OPLLVoice extends YMVoice {
       con: 2,
       ams: 4, // 5.9dB
       pms: s[0].pm || s[1].pm ? 2 : 0, // 6.7cent or 0
-      slots: [
-        s[0].toOPN(false),
-        new OPNSlotParam(),
-        new OPNSlotParam(),
-        s[1].toOPN(true),
-      ]
+      slots: [s[0].toOPN(false), new OPNSlotParam(), new OPNSlotParam(), s[1].toOPN(true)],
     });
   }
 
@@ -235,23 +227,20 @@ export class OPLLVoice extends YMVoice {
     return new OPLVoice({
       fb: this.fb,
       con: 0,
-      slots: [
-        this.slots[0].toOPL(),
-        this.slots[1].toOPL(),
-      ],
+      slots: [this.slots[0].toOPL(), this.slots[1].toOPL()],
     });
   }
 
-  toMML(type: "mgsdrv" = "mgsdrv"): string {
+  toMML(_type: "mgsdrv" = "mgsdrv"): string {
     const s = this.slots;
-    const pad2 = (e: any) => ("  " + e).slice(-2);
+    const pad2 = (e: number) => ("  " + e).slice(-2);
     return `; OPLL voice for MGSDRV
 @v15 = {
 ; TL FB
-  ${[s[0].tl, this.fb].map(pad2).join(',')},
+  ${[s[0].tl, this.fb].map(pad2).join(",")},
 ; AR DR SL RR KL MT AM PM EG KR DT
-  ${[s[0].ar, s[0].dr, s[0].sl, s[0].rr, s[0].kl, s[0].ml, s[0].am, s[0].pm, s[0].eg, s[0].kr, s[0].ws].map(pad2).join(',')},
-  ${[s[1].ar, s[1].dr, s[1].sl, s[1].rr, s[1].kl, s[1].ml, s[1].am, s[1].pm, s[1].eg, s[1].kr, s[1].ws].map(pad2).join(',')} }
+  ${[s[0].ar, s[0].dr, s[0].sl, s[0].rr, s[0].kl, s[0].ml, s[0].am, s[0].pm, s[0].eg, s[0].kr, s[0].ws].map(pad2).join(",")},
+  ${[s[1].ar, s[1].dr, s[1].sl, s[1].rr, s[1].kl, s[1].ml, s[1].am, s[1].pm, s[1].eg, s[1].kr, s[1].ws].map(pad2).join(",")} }
 `;
   }
 

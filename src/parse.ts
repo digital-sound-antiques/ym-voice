@@ -4,7 +4,7 @@ function parseOPMLine(line: string): {
   lineType: string | undefined;
   values: number[];
 } {
-  const lineType = line.match(/\w{2,3}\:/)?.[0];
+  const lineType = line.match(/\w{2,3}:/)?.[0];
 
   if (!lineType) {
     return { lineType, values: [] };
@@ -24,10 +24,7 @@ function parseOPMSlot(values: number[]): Partial<OPMSlotParam> {
   return { ar, dr, sr, rr, sl, tl, ks, ml, dt1, dt2, am };
 }
 
-function buildVoice(
-  voiceNumber: number,
-  values: ParsedOPMValues
-): OPMVoice | undefined {
+function buildVoice(voiceNumber: number, values: ParsedOPMValues): OPMVoice | undefined {
   if (
     values.channelValues?.length !== 7 ||
     values.op0Values?.length !== 11 ||
@@ -38,7 +35,7 @@ function buildVoice(
     console.warn(`@:${voiceNumber}: Malformed OPM instrument, skipping...`);
     return;
   }
-  const [pan, fb, con, ams, pms, slot, noiseEnable] = values.channelValues;
+  const [_pan, fb, con, ams, pms, _slot, _noiseEnable] = values.channelValues;
 
   return new OPMVoice({
     fb,
@@ -72,8 +69,8 @@ export function parseOPM(fileData: string): {
     return { voices: [], comments: [] };
   }
 
-  let voices: { [voiceNumber: number]: OPMVoice } = {};
-  let comments: { [voiceNumber: number]: string[] } = {};
+  const voices: { [voiceNumber: number]: OPMVoice } = {};
+  const comments: { [voiceNumber: number]: string[] } = {};
 
   let lastVoiceNumber = -1;
   let parsedValues: ParsedOPMValues = {};
@@ -125,11 +122,7 @@ export function parseOPM(fileData: string): {
           parsedValues.op3Values = values;
           break;
         default:
-          console.warn(
-            `Line ${index}: Unexpected line type "${
-              lineType || line.slice(0, 3)
-            }"`
-          );
+          console.warn(`Line ${index}: Unexpected line type "${lineType || line.slice(0, 3)}"`);
       }
     }
   });

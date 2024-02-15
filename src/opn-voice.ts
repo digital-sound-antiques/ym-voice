@@ -2,9 +2,11 @@ import { OPMSlotParam, OPMVoice } from "./opm-voice";
 import { OPLSlotParam, OPLVoice } from "./opl-voice";
 import { YMVoice } from "./ym-voice";
 
-const pad3 = (e: any) => ("   " + e).slice(-3);
+const pad3 = (e: number) => ("   " + e).slice(-3);
+const pad0x3 = (e: number) => "$" + ("000" + e.toString(16).toUpperCase()).slice(-3);
+
 export class OPNSlotParam {
-  __type: "OPNSlotParam" = "OPNSlotParam";
+  __type = "OPNSlotParam" as const;
   dt: number;
   ml: number;
   tl: number;
@@ -28,7 +30,7 @@ export class OPNSlotParam {
     this.sl = init?.sl ?? 0;
     this.rr = init?.rr ?? 0;
     this.ssg = init?.ssg ?? 0;
-  };
+  }
 
   toOPL(key: boolean): OPLSlotParam {
     function _AR(a: number) {
@@ -66,10 +68,9 @@ export class OPNSlotParam {
       dr: _DR(this.dr),
       sl: this.sl,
       rr: key ? _DR(this.sr) : _RR(this.rr),
-      ws: 0
+      ws: 0,
     });
   }
-
 
   toOPM(): OPMSlotParam {
     return new OPMSlotParam({
@@ -84,7 +85,7 @@ export class OPNSlotParam {
       rr: this.rr,
     });
   }
-};
+}
 
 export type OPNVoiceObject = {
   fb: number;
@@ -117,36 +118,36 @@ export class OPNVoice extends YMVoice {
 
   /**
    *     |D7|D6|D5|D4|D3|D2|D1|D0|
-   * 00: |--|   DT   |     ML    | # slot1 
-   * 01: |--|   DT   |     ML    | # slot3 
-   * 02: |--|   DT   |     ML    | # slot2 
-   * 03: |--|   DT   |     ML    | # slot4 
-   * 04: |--|         TL         | # slot1 
-   * 05: |--|         TL         | # slot3 
-   * 06: |--|         TL         | # slot2 
-   * 07: |--|         TL         | # slot4 
-   * 08: |--------|      AR      | # slot1 
-   * 09: |--------|      AR      | # slot3 
-   * 0A: |--------|      AR      | # slot2 
-   * 0B: |--------|      AR      | # slot4 
-   * 0C: |AM|-----|      DR      | # slot1
-   * 0D: |AM|-----|      DR      | # slot3 
-   * 0E: |AM|-----|      DR      | # slot2 
-   * 0F: |AM|-----|      DR      | # slot4
-   * 10: |--------|      SR      | # slot1
-   * 11: |--------|      SR      | # slot3 
-   * 12: |--------|      SR      | # slot2
-   * 13: |--------|      SR      | # slot4
-   * 14: |     SL    |    RR     | # slot1
-   * 15: |     SL    |    RR     | # slot3
-   * 16: |     SL    |    RR     | # slot2
-   * 17: |     SL    |    RR     | # slot4
-   * 18: |-----------|   SSG-EG  | # slot1
-   * 19: |-----------|   SSG-EG  | # slot3
-   * 1A: |-----------|   SSG-EG  | # slot2
-   * 1B: |-----------|   SSG-EG  | # slot4
-   * 1C: |-----|   FB   |  CON   | 
-   * 1D: |--|--| AMS |--|  PMS   | 
+   * 00: |--|   DT   |     ML    | # slot1 (M1)
+   * 01: |--|   DT   |     ML    | # slot3 (M2)
+   * 02: |--|   DT   |     ML    | # slot2 (C1)
+   * 03: |--|   DT   |     ML    | # slot4 (C2)
+   * 04: |--|         TL         | # slot1 (M1)
+   * 05: |--|         TL         | # slot3 (M2)
+   * 06: |--|         TL         | # slot2 (C1)
+   * 07: |--|         TL         | # slot4 (C2)
+   * 08: |--------|      AR      | # slot1 (M1)
+   * 09: |--------|      AR      | # slot3 (M2)
+   * 0A: |--------|      AR      | # slot2 (C1)
+   * 0B: |--------|      AR      | # slot4 (C2)
+   * 0C: |AM|-----|      DR      | # slot1 (M1)
+   * 0D: |AM|-----|      DR      | # slot3 (M2)
+   * 0E: |AM|-----|      DR      | # slot2 (C1)
+   * 0F: |AM|-----|      DR      | # slot4 (C2)
+   * 10: |--------|      SR      | # slot1 (M1)
+   * 11: |--------|      SR      | # slot3 (M2)
+   * 12: |--------|      SR      | # slot2 (C1)
+   * 13: |--------|      SR      | # slot4 (C2)
+   * 14: |     SL    |    RR     | # slot1 (M1)
+   * 15: |     SL    |    RR     | # slot3 (M2)
+   * 16: |     SL    |    RR     | # slot2 (C1)
+   * 17: |     SL    |    RR     | # slot4 (C2)
+   * 18: |-----------|   SSG-EG  | # slot1 (M1)
+   * 19: |-----------|   SSG-EG  | # slot3 (M2)
+   * 1A: |-----------|   SSG-EG  | # slot2 (C1)
+   * 1B: |-----------|   SSG-EG  | # slot4 (C2)
+   * 1C: |-----|   FB   |  CON   |
+   * 1D: |--|--| AMS |--|  PMS   |
    *     |D7|D6|D5|D4|D3|D2|D1|D0|
    */
   static decode(d: ArrayLike<number>): OPNVoice {
@@ -163,7 +164,7 @@ export class OPNVoice extends YMVoice {
         sr: d[16 + i] & 31,
         sl: (d[20 + i] >> 4) & 15,
         rr: d[20 + i] & 15,
-        ssg: d[24 + i] & 15
+        ssg: d[24 + i] & 15,
       });
     }
     return new OPNVoice({
@@ -171,19 +172,17 @@ export class OPNVoice extends YMVoice {
       con: d[28] & 7,
       ams: (d[29] >> 4) & 3,
       pms: d[29] & 7,
-      slots: [
-        slots[0], slots[2], slots[1], slots[3],
-      ]
+      slots: [slots[0], slots[2], slots[1], slots[3]],
     });
   }
 
   encode(): Array<number> {
     const s = this.slots;
     return [
-      s[0].dt << 4 | s[0].ml,
-      s[2].dt << 4 | s[2].ml,
-      s[1].dt << 4 | s[1].ml,
-      s[3].dt << 4 | s[3].ml,
+      (s[0].dt << 4) | s[0].ml,
+      (s[2].dt << 4) | s[2].ml,
+      (s[1].dt << 4) | s[1].ml,
+      (s[3].dt << 4) | s[3].ml,
       s[0].tl,
       s[2].tl,
       s[1].tl,
@@ -192,24 +191,24 @@ export class OPNVoice extends YMVoice {
       s[2].ar,
       s[1].ar,
       s[3].ar,
-      s[0].am << 7 | s[0].dr,
-      s[2].am << 7 | s[2].dr,
-      s[1].am << 7 | s[1].dr,
-      s[3].am << 7 | s[3].dr,
+      (s[0].am << 7) | s[0].dr,
+      (s[2].am << 7) | s[2].dr,
+      (s[1].am << 7) | s[1].dr,
+      (s[3].am << 7) | s[3].dr,
       s[0].sr,
       s[2].sr,
       s[1].sr,
       s[3].sr,
-      s[0].sl << 4 | s[0].rr,
-      s[2].sl << 4 | s[2].rr,
-      s[1].sl << 4 | s[1].rr,
-      s[3].sl << 4 | s[3].rr,
+      (s[0].sl << 4) | s[0].rr,
+      (s[2].sl << 4) | s[2].rr,
+      (s[1].sl << 4) | s[1].rr,
+      (s[3].sl << 4) | s[3].rr,
       s[0].ssg,
       s[2].ssg,
       s[1].ssg,
       s[3].ssg,
-      this.fb << 3 | this.con,
-      this.ams << 4 | this.pms,
+      (this.fb << 3) | this.con,
+      (this.ams << 4) | this.pms,
     ];
   }
 
@@ -227,17 +226,12 @@ export class OPNVoice extends YMVoice {
       con: this.con,
       ams: this.ams,
       pms: this.pms,
-      slots: [
-        this.slots[0].toOPM(),
-        this.slots[1].toOPM(),
-        this.slots[2].toOPM(),
-        this.slots[3].toOPM(),
-      ],
+      slots: [this.slots[0].toOPM(), this.slots[1].toOPM(), this.slots[2].toOPM(), this.slots[3].toOPM()],
     });
   }
 
-  /** 
-   * @param keyOn: if true, the resulting parameter is for key-on. otherwise for key-off. 
+  /**
+   * @param keyOn: if true, the resulting parameter is for key-on. otherwise for key-off.
    * @returns OPL voice parameters for simulating OPN voice with dual OPL channels.
    * Use `toOPL()[0]` for single OPL channel.
    */
@@ -254,52 +248,61 @@ export class OPNVoice extends YMVoice {
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], new OPLSlotParam({ ...ss[3], ml: ss[1].ml, tl: Math.min(63, Math.max(0, ss[1].tl - 2) + ss[3].tl) })]
+            slots: [
+              ss[0],
+              new OPLSlotParam({ ...ss[3], ml: ss[1].ml, tl: Math.min(63, Math.max(0, ss[1].tl - 2) + ss[3].tl) }),
+            ],
           }),
           new OPLVoice({
             fb: 0,
             con: 0,
-            slots: [ss[2], ss[3]]
-          })
+            slots: [ss[2], ss[3]],
+          }),
         ];
       case 1:
         return [
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], new OPLSlotParam({ ...ss[3], ml: ss[2].ml, tl: Math.min(63, Math.max(0, ss[2].tl - 2) + ss[3].tl) })]
+            slots: [
+              ss[0],
+              new OPLSlotParam({ ...ss[3], ml: ss[2].ml, tl: Math.min(63, Math.max(0, ss[2].tl - 2) + ss[3].tl) }),
+            ],
           }),
           new OPLVoice({
             fb: 0,
             con: 0,
-            slots: [ss[2], ss[3]]
-          })
+            slots: [ss[2], ss[3]],
+          }),
         ];
       case 2:
         return [
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], ss[3]]
+            slots: [ss[0], ss[3]],
           }),
           new OPLVoice({
             fb: 0,
             con: 0,
-            slots: [ss[2], ss[3]]
-          })
+            slots: [ss[2], ss[3]],
+          }),
         ];
       case 3:
         return [
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], new OPLSlotParam({ ...ss[3], ml: ss[1].ml, tl: Math.min(63, Math.max(0, ss[1].tl - 2) + ss[3].tl) })]
+            slots: [
+              ss[0],
+              new OPLSlotParam({ ...ss[3], ml: ss[1].ml, tl: Math.min(63, Math.max(0, ss[1].tl - 2) + ss[3].tl) }),
+            ],
           }),
           new OPLVoice({
             fb: 0,
             con: 0,
-            slots: [ss[2], ss[3]]
-          })
+            slots: [ss[2], ss[3]],
+          }),
         ];
 
       case 4:
@@ -307,51 +310,51 @@ export class OPNVoice extends YMVoice {
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], ss[1]]
+            slots: [ss[0], ss[1]],
           }),
           new OPLVoice({
             fb: 0,
             con: 0,
-            slots: [ss[2], ss[3]]
-          })
+            slots: [ss[2], ss[3]],
+          }),
         ];
       case 5:
         return [
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], ss[1]]
+            slots: [ss[0], ss[1]],
           }),
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], ss[3]]
-          })
+            slots: [ss[0], ss[3]],
+          }),
         ];
       case 6:
         return [
           new OPLVoice({
             fb: this.fb,
             con: 0,
-            slots: [ss[0], ss[1]]
+            slots: [ss[0], ss[1]],
           }),
           new OPLVoice({
             fb: 0,
             con: 1,
-            slots: [ss[2], ss[3]]
-          })
+            slots: [ss[2], ss[3]],
+          }),
         ];
       default:
         return [
           new OPLVoice({
             fb: this.fb,
             con: 1,
-            slots: [ss[0], ss[1]]
+            slots: [ss[0], ss[1]],
           }),
           new OPLVoice({
             fb: 0,
             con: 1,
-            slots: [ss[2], ss[3]]
+            slots: [ss[2], ss[3]],
           }),
         ];
     }
@@ -360,45 +363,45 @@ export class OPNVoice extends YMVoice {
   toMML(type: "mucom88" | "mucom88:poll_v" | "pmd" = "pmd"): string {
     const s = this.slots;
     if (type === "mucom88:poll_v") {
-      const pad0x3 = (e: any) => "$" + (("000" + e.toString(16).toUpperCase()).slice(-3));
       const raw = this.encode();
       const data = [...raw.slice(0, 24), raw[0x1c]];
       return `; OPN voice for MUCOM88(POLL V)
 @%000
-${data.slice(0, 4).map(pad0x3).join(',')} ; DT/ML
-${data.slice(4, 8).map(pad0x3).join(',')} ; TL
-${data.slice(8, 12).map(pad0x3).join(',')} ; KS/AR
-${data.slice(12, 16).map(pad0x3).join(',')} ; AM/DR
-${data.slice(16, 20).map(pad0x3).join(',')} ; SR
-${data.slice(20, 24).map(pad0x3).join(',')} ; SL/RR
-${data.slice(24).map(pad0x3).join(',')}                ; FB/AL
-    `
-    } if (type === "mucom88") {
+${data.slice(0, 4).map(pad0x3).join(",")} ; DT/ML
+${data.slice(4, 8).map(pad0x3).join(",")} ; TL
+${data.slice(8, 12).map(pad0x3).join(",")} ; KS/AR
+${data.slice(12, 16).map(pad0x3).join(",")} ; AM/DR
+${data.slice(16, 20).map(pad0x3).join(",")} ; SR
+${data.slice(20, 24).map(pad0x3).join(",")} ; SL/RR
+${data.slice(24).map(pad0x3).join(",")}                ; FB/AL
+    `;
+    }
+    if (type === "mucom88") {
       return `; OPN voice for MUCOM88
   @0
-${[this.fb, this.con].map(pad3).join(',')}
-${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt].map(pad3).join(',')}
-${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt].map(pad3).join(',')}
-${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt].map(pad3).join(',')}
-${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt].map(pad3).join(',')}
+${[this.fb, this.con].map(pad3).join(",")}
+${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt].map(pad3).join(",")}
+${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt].map(pad3).join(",")}
+${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt].map(pad3).join(",")}
+${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt].map(pad3).join(",")}
 `;
     } else {
-      const pad03 = (e: any) => ("000" + e).slice(-3);
+      const pad03 = (e: number) => ("000" + e).slice(-3);
       return `; OPN voice for PMD
 ; NUM ALG FB
-@ ${[0, this.con, this.fb].map(pad03).join(' ')}
+@ ${[0, this.con, this.fb].map(pad03).join(" ")}
 ; AR  DR  SR  RR  SL  TL  KS  ML  DT  AMS
-  ${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt, s[0].am].map(pad03).join(' ')}
-  ${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt, s[1].am].map(pad03).join(' ')}
-  ${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt, s[2].am].map(pad03).join(' ')}
-  ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt, s[3].am].map(pad03).join(' ')}
+  ${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt, s[0].am].map(pad03).join(" ")}
+  ${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt, s[1].am].map(pad03).join(" ")}
+  ${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt, s[2].am].map(pad03).join(" ")}
+  ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt, s[3].am].map(pad03).join(" ")}
 `;
     }
   }
 
   toFile(type: "dmp" | "tfi" | "vgi" = "tfi"): string | Uint8Array {
     const s = this.slots;
-    const convertDetune = (detune: number) => detune > 3 ? 7 - detune : detune;
+    const convertDetune = (detune: number) => (detune > 3 ? 7 - detune : detune);
     if (type === "dmp") {
       return new Uint8Array([
         ...[0x0a, 1, this.pms, this.fb, this.con, this.ams],
@@ -409,7 +412,7 @@ ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].
       ]);
     } else if (type === "vgi") {
       return new Uint8Array([
-        ...[this.con, this.fb, this.pms | this.ams << 4],
+        ...[this.con, this.fb, this.pms | (this.ams << 4)],
         ...[s[0].ml, convertDetune(s[0].dt), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
         ...[s[1].ml, convertDetune(s[1].dt), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
         ...[s[2].ml, convertDetune(s[2].dt), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],

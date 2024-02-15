@@ -1,0 +1,6 @@
+dist
+public
+node_modules
+
+*.config.js
+typedoc.js

@@ -5,7 +5,7 @@ import { YMVoice } from "./ym-voice";
 const _ml_tbl = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 12, 12, 15, 15];
 
 export class OPLSlotParam {
-  __type: "OPLSlotParam" = "OPLSlotParam";
+  __type = "OPLSlotParam" as const;
   am: number;
   pm: number;
   eg: number;
@@ -31,8 +31,8 @@ export class OPLSlotParam {
     this.sl = init?.sl ?? 0;
     this.rr = init?.rr ?? 0;
     this.ws = init?.ws ?? 0;
-  };
-  
+  }
+
   toOPLL() {
     const _klfix = [0, 2, 1, 3];
     return new OPLLSlotParam({
@@ -73,10 +73,10 @@ export class OPLSlotParam {
       sr: _RR(this.eg ? 0 : this.rr),
       sl: this.sl,
       rr: this.eg ? Math.min(15, this.rr + 1) : car ? 8 : 0,
-      ssg: 0
+      ssg: 0,
     });
   }
-};
+}
 
 export type OPLVoiceObject = {
   fb: number;
@@ -93,19 +93,16 @@ export class OPLVoice extends YMVoice {
     super("OPLVoice");
     this.fb = init?.fb ?? 0;
     this.con = init?.con ?? 0;
-    this.slots = [
-      new OPLSlotParam(init?.slots?.[0]),
-      new OPLSlotParam(init?.slots?.[1]),
-    ];
+    this.slots = [new OPLSlotParam(init?.slots?.[0]), new OPLSlotParam(init?.slots?.[1])];
   }
 
   /**
    *    |D7|D6|D5|D4|D3|D2|D1|D0|
-   * 0: |AM|PM|EG|KR|    ML     | # slot1 
+   * 0: |AM|PM|EG|KR|    ML     | # slot1
    * 1: |AM|PM|EG|KR|    ML     | # slot2
    * 2: |  KL |        TL       | # slot1
    * 3: |  KL |        TL       | # slot2
-   * 4: |     AR    |    DR     | # slot1 
+   * 4: |     AR    |    DR     | # slot1
    * 5: |     AR    |    DR     | # slot2
    * 6: |     SL    |    RR     | # slot1
    * 7: |     SL    |    RR     | # slot2
@@ -127,7 +124,7 @@ export class OPLVoice extends YMVoice {
       (s[1].sl << 4) | s[1].rr,
       s[0].ws,
       s[1].ws,
-      (this.fb << 1) | this.con
+      (this.fb << 1) | this.con,
     ];
   }
 
@@ -148,7 +145,7 @@ export class OPLVoice extends YMVoice {
           dr: d[4] & 0xf,
           sl: (d[6] >> 4) & 0xf,
           rr: d[6] & 0xf,
-          ws: d[8] & 3
+          ws: d[8] & 3,
         }),
         new OPLSlotParam({
           am: (d[1] >> 7) & 1,
@@ -162,9 +159,9 @@ export class OPLVoice extends YMVoice {
           dr: d[5] & 0xf,
           sl: (d[7] >> 4) & 0xf,
           rr: d[7] & 0xf,
-          ws: d[9] & 3
-        })
-      ]
+          ws: d[9] & 3,
+        }),
+      ],
     });
   }
 
@@ -179,10 +176,7 @@ export class OPLVoice extends YMVoice {
   toOPLLVoice(): OPLLVoice {
     return new OPLLVoice({
       fb: this.fb,
-      slots: [
-        this.con === 0 ? this.slots[0].toOPLL() : new OPLLSlotParam(),
-        this.slots[1].toOPLL(),
-      ]
+      slots: [this.con === 0 ? this.slots[0].toOPLL() : new OPLLSlotParam(), this.slots[1].toOPLL()],
     });
   }
 
@@ -205,7 +199,7 @@ export class OPLVoice extends YMVoice {
         Math.min(
           63,
           4 * Math.abs(this.slots[0].sl - opll.slots[0].sl) +
-          Math.abs(this.slots[0].tl - (opll.slots[0].tl + opll.slots[0].ws ? 8 : 0))
+            Math.abs(this.slots[0].tl - (opll.slots[0].tl + opll.slots[0].ws ? 8 : 0)),
         ) >> 3;
       if (this.slots[1].rr === 0) {
         // sustainable tone
@@ -241,15 +235,15 @@ export class OPLVoice extends YMVoice {
     };
   }
 
-  toMML(type: "pmd" = "pmd"):string {
+  toMML(_type: "pmd" = "pmd"): string {
     const s = this.slots;
-    const pad03 = (e: any) => ("000" + e).slice(-3);
+    const pad03 = (e: number) => ("000" + e).slice(-3);
     return `; OPL voice for PMD
 ; NUM ALG FB
-@ ${[0, this.con, this.fb].map(pad03).join(' ')}
+@ ${[0, this.con, this.fb].map(pad03).join(" ")}
 ; AR  DR  RR  SL  TL  KSL ML  KSR EGT VIB AM
-  ${[s[0].ar, s[0].dr, s[0].rr, s[0].sl, s[0].tl, s[0].kl, s[0].ml, s[0].kr, s[0].eg, s[0].pm, s[0].am].map(pad03).join(' ')}
-  ${[s[1].ar, s[1].dr, s[1].rr, s[1].sl, s[1].tl, s[1].kl, s[1].ml, s[1].kr, s[1].eg, s[1].pm, s[1].am].map(pad03).join(' ')}
+  ${[s[0].ar, s[0].dr, s[0].rr, s[0].sl, s[0].tl, s[0].kl, s[0].ml, s[0].kr, s[0].eg, s[0].pm, s[0].am].map(pad03).join(" ")}
+  ${[s[1].ar, s[1].dr, s[1].rr, s[1].sl, s[1].tl, s[1].kl, s[1].ml, s[1].kr, s[1].eg, s[1].pm, s[1].am].map(pad03).join(" ")}
 `;
   }
 
