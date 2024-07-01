@@ -1,3 +1,7 @@
+## 0.3.2
+- Add getOPLLRomVoices function.
+- Supported ROM instrument of VRC7 and YMF281B.
+
 ## 0.3.0
 - Added `parseOPM` [PR#2](https://github.com/digital-sound-antiques/ym-voice/pull/2). Thanks to @dquenne
 - Fixed encode error in `ws` of OPLL.
