@@ -180,11 +180,15 @@ export class OPLVoice extends YMVoice {
     });
   }
 
-  toOPLLROMVoice(): { program: number; volumeOffset: number; octaveOffset: number } {
+  toOPLLROMVoice(chipVariant: keyof typeof OPLLVoiceMap = "ym2413"): {
+    program: number;
+    volumeOffset: number;
+    octaveOffset: number;    
+  } {
     let diff = Infinity;
     let program = 0;
     for (let i = 1; i < 16; i++) {
-      const opll = OPLLVoiceMap[i];
+      const opll = OPLLVoiceMap[chipVariant][i];
       if (i == 13) continue;
       let d = 0;
       const ml_a = this.slots[1].ml / _ml_tbl[this.slots[0].ml];
@@ -219,7 +223,7 @@ export class OPLVoice extends YMVoice {
         diff = d;
       }
     }
-    const opll = OPLLVoiceMap[program];
+    const opll = OPLLVoiceMap[chipVariant][program];
     const ooff = Math.floor(Math.log2(_ml_tbl[this.slots[1].ml] / _ml_tbl[opll.slots[1].ml]) / 2);
     let voff = 1;
     if (opll.slots[1].ws) {
