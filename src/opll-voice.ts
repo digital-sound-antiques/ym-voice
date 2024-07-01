@@ -276,3 +276,16 @@ export const OPLLVoiceMap = {
   vrc7: _VRC7_ROM_PATCHES.map(OPLLVoice.decode),
   ymf281b: _YMF281B_ROM_PATCHES.map(OPLLVoice.decode),
 };
+
+export type OPLLVoiceVariant = keyof typeof OPLLVoiceMap;
+
+export function getOPLLRomVoices(variant?: OPLLVoiceVariant | string | null): OPLLVoice[] {
+  switch (variant) {
+    case "ym2413":
+    case "vrc7":
+    case "ymf281b":
+      return OPLLVoiceMap[variant];
+    default:
+      return OPLLVoiceMap["ym2413"];
+  }
+}

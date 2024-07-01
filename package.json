@@ -1,6 +1,6 @@
 {
   "name": "ym-voice",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "FM voice parameter tools for YM sound chips.",
   "main": "dist/index.js",
   "scripts": {
